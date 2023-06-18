@@ -33,7 +33,6 @@ class AppRow(QHBoxLayout):
         self.editButton = QPushButton(QIcon("Assets\\edit.png"), "")
         self.editButton.setMinimumHeight(24)
         self.editButton.clicked.connect(self.editItemWindow)
-        # TODO: build and connect the edit window
         self.addWidget(self.editButton)
         self.removeButton = QPushButton(QIcon("Assets\\remove.png"), "")
         self.removeButton.setMinimumHeight(24)

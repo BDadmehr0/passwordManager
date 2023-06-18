@@ -4,22 +4,22 @@ from os.path import exists
 from pathlib import Path
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QScrollArea, QScrollBar
 from PyQt6.QtGui import QIcon, QMouseEvent
-from PyQt6.QtCore import QSize, QTimer, Qt, QPointF
+from PyQt6.QtCore import QSize, QTimer, Qt, QPointF, pyqtSignal
 from UserInterface.appRow import AppRow
 from UserInterface.addNewItem import AddNewItem
-from UserInterface.setting import SettingWindow
 
 
-class PasswordManager(QWidget):
+class SettingWindow(QWidget):
+    submitClicked = pyqtSignal(bool)
+
     def __init__(self, parent = None) -> None:
         super().__init__(parent)
         self.dataFilePath = ".\\Data\\"
-        self.dataFileName = ".\\data.json"
+        self.dataFileName = ".\\setting.json"
         self.screenWidth = 1920
         self.screenHeight = 1080
         self.windowWidth = 1000
         self.windowHeight = 800
-        self.numberOfPassword = 0
         self.clockCounterVariable = 0
         self.milliseconds = 0
         self.seconds = 0
@@ -33,7 +33,7 @@ class PasswordManager(QWidget):
         self.show()
 
     def setupUi(self) -> None:
-        self.setWindowTitle("Password Manager")
+        self.setWindowTitle("Setting")
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
         self.setGeometry((self.screenWidth - self.windowWidth) // 2, (self.screenHeight - self.windowHeight) // 2, self.windowWidth, self.windowHeight)
         self.setWindowIcon(QIcon("Assets\\password.png"))
@@ -63,28 +63,7 @@ class PasswordManager(QWidget):
         self.appButtonsLayout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight)
         self.header.addLayout(self.appButtonsLayout)
         self.passwordManagerLayout.addLayout(self.header)
-        self.mainAppLayout = QVBoxLayout()
-        self.settingPushButton = QPushButton(QIcon("Assets\\setting.png"), "Setting")
-        self.settingPushButton.clicked.connect(self.settingWindow)
-        self.mainAppLayout.addWidget(self.settingPushButton)
-        self.appHeader = QHBoxLayout()
-        self.nameHeaderLabel = QLabel("Name")
-        self.appHeader.addWidget(self.nameHeaderLabel)
-        self.usernameHeaderLabel = QLabel("Username")
-        self.appHeader.addWidget(self.usernameHeaderLabel)
-        self.passwordHeaderLabel = QLabel("Password")
-        self.appHeader.addWidget(self.passwordHeaderLabel)
-        self.addNewItemPushButton = QPushButton(QIcon("Assets\\add_new.png"), "Add new item")
-        self.addNewItemPushButton.clicked.connect(self.addNewItemWindow)
-        self.addNewItemPushButton.setMaximumWidth(140)
-        self.appHeader.addWidget(self.addNewItemPushButton)
-        self.mainAppLayout.addLayout(self.appHeader)
-        self.appScrollArea = QScrollArea()
-        self.scrollAreaLayoutContents = QVBoxLayout()
-        self.scrollAreaLayoutContents.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.appScrollArea.setLayout(self.scrollAreaLayoutContents)
-        self.mainAppLayout.addWidget(self.appScrollArea)
-        self.passwordManagerLayout.addLayout(self.mainAppLayout)
+        
         self.footer = QHBoxLayout()
         self.statusLayout = QHBoxLayout()
         self.timeLabel = QLabel("00:00:00:00")
@@ -136,23 +115,7 @@ class PasswordManager(QWidget):
             self.showMaximized()
             self.maximizeOrRestoreDownPushButton.setIcon(QIcon("Assets\\collapse.png"))
 
-    def addNewItemWindow(self) -> None:
-        self.addNewItemWindowUi = AddNewItem()
-        self.addNewItemWindowUi.submitClicked.connect(self.onAddNewItemWindowConfirm)
-
-    def onAddNewItemWindowConfirm(self, name, username, password):
-        self.scrollAreaLayoutContents.addLayout(AppRow(name, username, password))
-
-    def settingWindow(self) -> None:
-        self.settingWindowUi = SettingWindow()
-        self.settingWindowUi.submitClicked.connect(self.onAddNewItemWindowConfirm)
-
-    def settingWindowConfirm(self, isOkPressed):
-        if isOkPressed:
-            pass
-
     def closeWindow(self) -> None:
-        self.saveData()
         self.close()
 
     def saveData(self) -> None:

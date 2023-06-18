@@ -26,7 +26,7 @@ class EditItemWindow(QWidget):
         self.show()
 
     def setupUi(self) -> None:
-        self.setWindowTitle("Add new")
+        self.setWindowTitle("Edit item")
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
         self.setGeometry((self.screenWidth - self.windowWidth) // 2, (self.screenHeight - self.windowHeight) // 2, self.windowWidth, self.windowHeight)
         self.setWindowIcon(QIcon("Assets\\password.png"))
