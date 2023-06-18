@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import QHBoxLayout, QWidget, QPushButton, QVBoxLayout, QLab
 from UserInterface.passwordGenerator import PasswordGenerator
 
 
-class AddNewItem(QWidget):
+class EditItemWindow(QWidget):
     submitClicked = pyqtSignal(str, str, str)
 
     def __init__(self, parent=None) -> None:
@@ -63,8 +63,8 @@ class AddNewItem(QWidget):
         self.mainAppLayout.addWidget(self.usernameTextEdit)
         self.passwordTextEdit = QLineEdit(placeholderText="password")
         self.mainAppLayout.addWidget(self.passwordTextEdit)
-        self.addPushButton = QPushButton("Add", self)
-        self.addPushButton.clicked.connect(self.addNewItem)
+        self.addPushButton = QPushButton("Done", self)
+        self.addPushButton.clicked.connect(self.doneEditItem)
         self.mainAppLayout.addWidget(self.addPushButton)
         self.generateNewPasswordPushButton = QPushButton("generate password", self)
         self.generateNewPasswordPushButton.clicked.connect(self.generatePassword)
@@ -121,7 +121,7 @@ class AddNewItem(QWidget):
             self.showMaximized()
             self.maximizeOrRestoreDownPushButton.setIcon(QIcon("Assets\\collapse.png"))
 
-    def addNewItem(self) -> None:
+    def doneEditItem(self) -> None:
         self.submitClicked.emit(self.nameTextEdit.text(), self.usernameTextEdit.text(), self.passwordTextEdit.text())
         self.close()
 

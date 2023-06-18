@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import QHBoxLayout, QPushButton, QLineEdit
 from PyQt6.QtGui import QIcon
 from pyperclip import copy
+from UserInterface.editItem import EditItemWindow
 
 
 class AppRow(QHBoxLayout):
@@ -31,6 +32,7 @@ class AppRow(QHBoxLayout):
         self.addWidget(self.copyButton)
         self.editButton = QPushButton(QIcon("Assets\\edit.png"), "")
         self.editButton.setMinimumHeight(24)
+        self.editButton.clicked.connect(self.editItemWindow)
         # TODO: build and connect the edit window
         self.addWidget(self.editButton)
         self.removeButton = QPushButton(QIcon("Assets\\remove.png"), "")
@@ -62,3 +64,16 @@ class AppRow(QHBoxLayout):
         self.editButton.deleteLater()
         self.removeButton.deleteLater()
         self.deleteLater()
+
+    def editItemWindow(self) -> None:
+        self.editItemWindowUi = EditItemWindow()
+        self.editItemWindowUi.nameTextEdit.setText(self.nameLineEdit.text())
+        self.editItemWindowUi.usernameTextEdit.setText(self.usernameLineEdit.text())
+        self.editItemWindowUi.passwordTextEdit.setText(self.passwordLineEdit.text())
+        self.editItemWindowUi.submitClicked.connect(self.onEditItemWindowConfirm)
+
+    def onEditItemWindowConfirm(self, name, username, password):
+        self.nameLineEdit.setText(name)
+        self.usernameLineEdit.setText(username)
+        self.passwordLineEdit.setText(password)
+        self.isDataChanged = True

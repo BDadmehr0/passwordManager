@@ -64,8 +64,8 @@ class PasswordManager(QWidget):
         self.passwordManagerLayout.addLayout(self.header)
         self.mainAppLayout = QVBoxLayout()
         self.settingPushButton = QPushButton(QIcon("Assets\\setting.png"), "Setting")
-        self.mainAppLayout.addWidget(self.settingPushButton)
         # TODO: connect the setting button to setting window
+        self.mainAppLayout.addWidget(self.settingPushButton)
         self.appHeader = QHBoxLayout()
         self.nameHeaderLabel = QLabel("Name")
         self.appHeader.addWidget(self.nameHeaderLabel)
@@ -137,14 +137,13 @@ class PasswordManager(QWidget):
             self.maximizeOrRestoreDownPushButton.setIcon(QIcon("Assets\\collapse.png"))
 
     def addNewItemWindow(self) -> None:
-        self.sub_window = AddNewItem()
-        self.sub_window.submitClicked.connect(self.on_sub_window_confirm)
-        self.sub_window.show()
+        self.addNewItemWindowUi = AddNewItem()
+        self.addNewItemWindowUi.submitClicked.connect(self.onAddNewItemWindowConfirm)
 
-    def on_sub_window_confirm(self, name, username, password):
+    def onAddNewItemWindowConfirm(self, name, username, password):
         self.scrollAreaLayoutContents.addLayout(AppRow(name, username, password))
         self.isDataChanged = True
-    
+
     def closeWindow(self) -> None:
         self.saveData()
         self.close()
