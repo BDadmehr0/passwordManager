@@ -14,8 +14,8 @@ from sheetStyle.darkMode import darkMode
 import darkdetect
 
 
-class PasswordCheck(QWidget):
-    submitClicked = pyqtSignal(bool)
+class ChangePassword(QWidget):
+    submitClicked = pyqtSignal(bool, str)
 
     def __init__(self, appVersion: str = "V00.00.00", parent=None) -> None:
         super().__init__(parent)
@@ -26,7 +26,7 @@ class PasswordCheck(QWidget):
         self.screenWidth = 1920
         self.screenHeight = 1080
         self.windowWidth = 400
-        self.windowHeight = 200
+        self.windowHeight = 300
         self.clockCounterVariable = 0
         self.milliseconds = 0
         self.seconds = 0
@@ -89,15 +89,27 @@ class PasswordCheck(QWidget):
         self.header.addLayout(self.appButtonsLayout)
         self.loginWindowLayout.addLayout(self.header)
         self.mainLoginWindowLayout = QVBoxLayout()
-        self.passwordLayout = QHBoxLayout()
-        self.passwordLabel = QLabel("Password:")
-        self.passwordLayout.addWidget(self.passwordLabel)
-        self.passwordLineEdit = QLineEdit()
-        self.passwordLayout.addWidget(self.passwordLineEdit)
-        self.mainLoginWindowLayout.addLayout(self.passwordLayout)
+        self.oldPasswordLayout = QHBoxLayout()
+        self.oldPasswordLabel = QLabel("Old password:")
+        self.oldPasswordLayout.addWidget(self.oldPasswordLabel)
+        self.oldPasswordLineEdit = QLineEdit()
+        self.oldPasswordLayout.addWidget(self.oldPasswordLineEdit)
+        self.mainLoginWindowLayout.addLayout(self.oldPasswordLayout)
+        self.newPasswordLayout = QHBoxLayout()
+        self.newPasswordLabel = QLabel("New password:")
+        self.newPasswordLayout.addWidget(self.newPasswordLabel)
+        self.newPasswordLineEdit = QLineEdit()
+        self.newPasswordLayout.addWidget(self.newPasswordLineEdit)
+        self.mainLoginWindowLayout.addLayout(self.newPasswordLayout)
+        self.confirmPasswordLayout = QHBoxLayout()
+        self.confirmPasswordLabel = QLabel("confirm password:")
+        self.confirmPasswordLayout.addWidget(self.confirmPasswordLabel)
+        self.confirmPasswordLineEdit = QLineEdit()
+        self.confirmPasswordLayout.addWidget(self.confirmPasswordLineEdit)
+        self.mainLoginWindowLayout.addLayout(self.confirmPasswordLayout)
         self.loginButtonLayout = QHBoxLayout()
         self.loginButton = QPushButton("Done")
-        self.loginButton.clicked.connect(self.login)
+        self.loginButton.clicked.connect(self.changePassword)
         self.loginButtonLayout.addWidget(self.loginButton)
         self.mainLoginWindowLayout.addLayout(self.loginButtonLayout)
         self.loginWindowLayout.addLayout(self.mainLoginWindowLayout)
@@ -168,7 +180,7 @@ class PasswordCheck(QWidget):
             self.maximizeOrRestoreDownPushButton.setIcon(
                 QIcon("Assets\\collapse.png"))
 
-    def login(self) -> None:
+    def changePassword(self) -> None:
         file = open(
             Path(self.dataFilePath, self.mainPasswordFileName), "r", encoding="utf-8"
         )
@@ -176,11 +188,16 @@ class PasswordCheck(QWidget):
         file.close()
         for row in data:
             if row == "mainPassword":
-                if self.passwordLineEdit.text() == data[row]:
-                    self.submitClicked.emit(True)
-                    self.closeWindow()
+                if self.oldPasswordLineEdit.text() == data[row]:
+                    if self.newPasswordLineEdit.text() == self.confirmPasswordLineEdit.text():
+                        self.submitClicked.emit(
+                            True, self.newPasswordLineEdit.text())
+                        self.closeWindow()
+                    else:
+                        self.submitClicked.emit(False, "")
+                        self.closeWindow()
                 else:
-                    self.submitClicked.emit(False)
+                    self.submitClicked.emit(False, "")
                     self.closeWindow()
 
     def loadSetting(self) -> None:

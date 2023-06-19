@@ -15,6 +15,7 @@ from PyQt6.QtGui import QIcon, QMouseEvent
 from PyQt6.QtCore import QSize, QTimer, Qt, QPointF, pyqtSignal
 from sheetStyle.darkMode import darkMode
 from UserInterface.passwordCheck import PasswordCheck
+from UserInterface.changePassword import ChangePassword
 import darkdetect
 
 
@@ -27,6 +28,7 @@ class SettingWindow(QWidget):
         self.dataFilePath = ".\\Data\\"
         self.dataFileName = ".\\data.json"
         self.settingFileName = ".\\setting.json"
+        self.mainPasswordFileName = ".\\mainPassword.json"
         self.screenWidth = 1920
         self.screenHeight = 1080
         self.windowWidth = 1000
@@ -201,16 +203,24 @@ class SettingWindow(QWidget):
         self.closeWindow()
 
     def changePassword(self) -> None:
-        pass
+        self.changePasswordWindow = ChangePassword(self.appVersion)
+        self.changePasswordWindow.submitClicked.connect(
+            self.changePasswordWindowConfirm)
+
+    def changePasswordWindowConfirm(self, isPasswordCorrect, newPassword) -> None:
+        if isPasswordCorrect:
+            self.saveNewPassword(newPassword)
+            self.closeWindow()
 
     def resetFactory(self) -> None:
         self.passwordCheckWindow()
 
     def passwordCheckWindow(self) -> None:
         self.settingWindowUi = PasswordCheck(self.appVersion)
-        self.settingWindowUi.submitClicked.connect(self.PasswordCheckWindowConfirm)
+        self.settingWindowUi.submitClicked.connect(
+            self.passwordCheckWindowConfirm)
 
-    def PasswordCheckWindowConfirm(self, isPasswordCorrect) -> None:
+    def passwordCheckWindowConfirm(self, isPasswordCorrect) -> None:
         if isPasswordCorrect:
             self.clearData()
         else:
@@ -228,6 +238,22 @@ class SettingWindow(QWidget):
                 json.dump(data, file)
             else:
                 file = open(Path(self.dataFilePath, self.dataFileName), "x")
+                file.close()
+                self.saveData()
+        else:
+            makedirs(Path(self.dataFilePath))
+            self.saveData()
+
+    def saveNewPassword(self, newPassword) -> None:
+        if exists(Path(self.dataFilePath)):
+            if Path.is_file(Path(self.dataFilePath, self.mainPasswordFileName)):
+                file = open(
+                    Path(self.dataFilePath, self.mainPasswordFileName), "w")
+                data = {"mainPassword": newPassword}
+                json.dump(data, file)
+            else:
+                file = open(
+                    Path(self.dataFilePath, self.mainPasswordFileName), "x")
                 file.close()
                 self.saveData()
         else:
