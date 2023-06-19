@@ -2,11 +2,11 @@ import json
 from os import makedirs
 from os.path import exists
 from pathlib import Path
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QScrollArea, QScrollBar
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QComboBox, QScrollBar
 from PyQt6.QtGui import QIcon, QMouseEvent
 from PyQt6.QtCore import QSize, QTimer, Qt, QPointF, pyqtSignal
-from UserInterface.appRow import AppRow
-from UserInterface.addNewItem import AddNewItem
+from sheetStyle.darkMode import darkMode
+import darkdetect
 
 
 class SettingWindow(QWidget):
@@ -15,7 +15,7 @@ class SettingWindow(QWidget):
     def __init__(self, parent = None) -> None:
         super().__init__(parent)
         self.dataFilePath = ".\\Data\\"
-        self.dataFileName = ".\\setting.json"
+        self.settingFileName = ".\\setting.json"
         self.screenWidth = 1920
         self.screenHeight = 1080
         self.windowWidth = 1000
@@ -25,6 +25,7 @@ class SettingWindow(QWidget):
         self.seconds = 0
         self.minutes = 0
         self.hours = 0
+        self.loadSetting()
         self.setupUi()
         self.loadData()
         self.clock = QTimer(self)
@@ -33,11 +34,13 @@ class SettingWindow(QWidget):
         self.show()
 
     def setupUi(self) -> None:
+        if self.darkModeEnable:
+            self.setStyleSheet(darkMode)
         self.setWindowTitle("Setting")
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
         self.setGeometry((self.screenWidth - self.windowWidth) // 2, (self.screenHeight - self.windowHeight) // 2, self.windowWidth, self.windowHeight)
         self.setWindowIcon(QIcon("Assets\\password.png"))
-        self.passwordManagerLayout = QVBoxLayout()
+        self.settingWindowLayout = QVBoxLayout()
         self.header = QHBoxLayout()
         self.appNameAndIconLayout = QHBoxLayout()
         self.appIconLabel = QLabel("")
@@ -62,8 +65,30 @@ class SettingWindow(QWidget):
         self.appButtonsLayout.addWidget(self.closePushButton)
         self.appButtonsLayout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight)
         self.header.addLayout(self.appButtonsLayout)
-        self.passwordManagerLayout.addLayout(self.header)
-        
+        self.settingWindowLayout.addLayout(self.header)
+        self.mainSettingWindowLayout = QVBoxLayout()
+        self.themeLayout = QHBoxLayout()
+        self.themeLabel = QLabel("Theme:")
+        self.themeLayout.addWidget(self.themeLabel)
+        self.themeComboBox = QComboBox()
+        self.themeComboBox.addItem("Auto")
+        self.themeComboBox.addItem("Light")
+        self.themeComboBox.addItem("Dark")
+        self.themeLayout.addWidget(self.themeComboBox)
+        self.mainSettingWindowLayout.addLayout(self.themeLayout)
+        self.submitButtonsFrame = QHBoxLayout()
+        self.submitButtonsFrame.setAlignment(Qt.AlignmentFlag.AlignBottom)
+        self.okButton = QPushButton("Ok")
+        self.okButton.clicked.connect(self.ok)
+        self.submitButtonsFrame.addWidget(self.okButton)
+        self.cancelButton = QPushButton("Cancel")
+        self.cancelButton.clicked.connect(self.cancel)
+        self.submitButtonsFrame.addWidget(self.cancelButton)
+        self.ApplyButton = QPushButton("Apply")
+        self.ApplyButton.clicked.connect(self.apply)
+        self.submitButtonsFrame.addWidget(self.ApplyButton)
+        self.mainSettingWindowLayout.addLayout(self.submitButtonsFrame)
+        self.settingWindowLayout.addLayout(self.mainSettingWindowLayout)
         self.footer = QHBoxLayout()
         self.statusLayout = QHBoxLayout()
         self.timeLabel = QLabel("00:00:00:00")
@@ -85,8 +110,8 @@ class SettingWindow(QWidget):
         self.auteurLayout.addWidget(self.auteurNameLabel)
         self.auteurLayout.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignRight)
         self.footer.addLayout(self.auteurLayout)
-        self.passwordManagerLayout.addLayout(self.footer)
-        self.setLayout(self.passwordManagerLayout)
+        self.settingWindowLayout.addLayout(self.footer)
+        self.setLayout(self.settingWindowLayout)
 
     def mousePressEvent(self, a0: QMouseEvent) -> None:
         self.oldPosition = a0.globalPosition()
@@ -118,24 +143,32 @@ class SettingWindow(QWidget):
     def closeWindow(self) -> None:
         self.close()
 
+    def cancel(self) -> None:
+        self.submitClicked.emit(False)
+        self.closeWindow()
+
+    def ok(self) -> None:
+        self.saveData()
+        self.submitClicked.emit(True)
+        self.closeWindow()
+
+    def apply(self) -> None:
+        self.saveData()
+        self.submitClicked.emit(True)
+
     def saveData(self) -> None:
-        # TODO: encrypt data
         if exists(Path(self.dataFilePath)):
-            if Path.is_file(Path(self.dataFilePath, self.dataFileName)):
-                file = open(Path(self.dataFilePath, self.dataFileName), "w")
+            if Path.is_file(Path(self.dataFilePath, self.settingFileName)):
+                file = open(Path(self.dataFilePath, self.settingFileName), "w")
                 data = {}
-                for row in self.scrollAreaLayoutContents.children():
-                    if row.rowNumber == 0:
-                        self.numberOfPassword += 1
-                        row.rowNumber = self.numberOfPassword
-                    data[f"row-{row.rowNumber}"] = {}
-                    data[f"row-{row.rowNumber}"]["rowNumber"] = str(row.rowNumber)
-                    data[f"row-{row.rowNumber}"]["name"] = row.nameLineEdit.text()
-                    data[f"row-{row.rowNumber}"]["username"] = row.usernameLineEdit.text()
-                    data[f"row-{row.rowNumber}"]["password"] = row.passwordLineEdit.text()
+                for row in self.mainSettingWindowLayout.children():
+                    for index in range(row.count()):
+                        if type(row.itemAt(index).widget()) == type(QLabel()):
+                            if row.itemAt(index).widget().text() == "Theme:":
+                                data["theme"] = row.itemAt(index+1).widget().currentText()
                 json.dump(data, file)
             else:
-                file = open(Path(self.dataFilePath, self.dataFileName), 'x')
+                file = open(Path(self.dataFilePath, self.settingFileName), 'x')
                 file.close()
                 self.saveData()
         else:
@@ -143,19 +176,42 @@ class SettingWindow(QWidget):
             self.saveData()
 
     def loadData(self) -> None:
-        # TODO: decrypt data
         if exists(Path(self.dataFilePath)):
-            if Path.is_file(Path(self.dataFilePath, self.dataFileName)):
-                file = open(Path(self.dataFilePath, self.dataFileName), 'r', encoding = "utf-8")
+            if Path.is_file(Path(self.dataFilePath, self.settingFileName)):
+                file = open(Path(self.dataFilePath, self.settingFileName), 'r', encoding = "utf-8")
                 data = json.load(file)
                 for row in data:
-                    self.numberOfPassword += 1
-                    self.scrollAreaLayoutContents.addLayout(AppRow(data[row]["name"], data[row]["username"], data[row]["password"], data[row]["rowNumber"]))
+                    if row == "theme":
+                        if data[row] == "Auto":
+                            self.themeComboBox.setCurrentIndex(0)
+                        elif data[row] == "Light":
+                            self.themeComboBox.setCurrentIndex(1)
+                        elif data[row] == "Dark":
+                            self.themeComboBox.setCurrentIndex(1)
+                        else:
+                            pass
             else:
-                file = open(Path(self.dataFilePath, self.dataFileName), 'x')
+                file = open(Path(self.dataFilePath, self.settingFileName), 'x')
                 data = {}
                 json.dump(data, file)
                 file.close()
         else:
             makedirs(Path(self.dataFilePath))
             self.loadData()
+    
+    def loadSetting(self) -> None:
+        file = open(Path(self.dataFilePath, self.settingFileName), 'r', encoding = "utf-8")
+        data = json.load(file)
+        for row in data:
+            if row == "theme":
+                if data[row] == "Auto":
+                    if darkdetect.isDark():
+                        self.darkModeEnable = "Dark"
+                    else:
+                        self.darkModeEnable = "Light"
+                elif data[row] == "Light":
+                    self.darkModeEnable = "Light"
+                elif data[row] == "Dark":
+                    self.darkModeEnable = "Dark"
+                else:
+                    pass

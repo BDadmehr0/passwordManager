@@ -1,7 +1,11 @@
+import json
+from pathlib import Path
 from PyQt6.QtCore import Qt, QTimer, QSize, pyqtSignal, QPointF
 from PyQt6.QtGui import QIcon, QMouseEvent
 from PyQt6.QtWidgets import QHBoxLayout, QWidget, QPushButton, QVBoxLayout, QLabel, QLineEdit
 from UserInterface.passwordGenerator import PasswordGenerator
+from sheetStyle.darkMode import darkMode
+import darkdetect
 
 
 class AddNewItem(QWidget):
@@ -9,7 +13,8 @@ class AddNewItem(QWidget):
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
-        self.sub_window = None
+        self.dataFilePath = ".\\Data\\"
+        self.settingFileName = ".\\setting.json"
         self.screenWidth = 1920
         self.screenHeight = 1080
         self.windowWidth = 600
@@ -19,6 +24,7 @@ class AddNewItem(QWidget):
         self.seconds = 0
         self.minutes = 0
         self.hours = 0
+        self.loadSetting()
         self.setupUi()
         self.clock = QTimer(self)
         self.clock.timeout.connect(self.clockCount)
@@ -26,6 +32,8 @@ class AddNewItem(QWidget):
         self.show()
 
     def setupUi(self) -> None:
+        if self.darkModeEnable:
+            self.setStyleSheet(darkMode)
         self.setWindowTitle("Add new item")
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
         self.setGeometry((self.screenWidth - self.windowWidth) // 2, (self.screenHeight - self.windowHeight) // 2, self.windowWidth, self.windowHeight)
@@ -131,3 +139,20 @@ class AddNewItem(QWidget):
 
     def on_sub_window_confirm(self, password):
         self.passwordTextEdit.setText(f"{password}")
+
+    def loadSetting(self) -> None:
+        file = open(Path(self.dataFilePath, self.settingFileName), 'r', encoding = "utf-8")
+        data = json.load(file)
+        for row in data:
+            if row == "theme":
+                if data[row] == "Auto":
+                    if darkdetect.isDark():
+                        self.darkModeEnable = "Dark"
+                    else:
+                        self.darkModeEnable = "Light"
+                elif data[row] == "Light":
+                    self.darkModeEnable = "Light"
+                elif data[row] == "Dark":
+                    self.darkModeEnable = "Dark"
+                else:
+                    pass

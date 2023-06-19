@@ -8,6 +8,8 @@ from PyQt6.QtCore import QSize, QTimer, Qt, QPointF
 from UserInterface.appRow import AppRow
 from UserInterface.addNewItem import AddNewItem
 from UserInterface.setting import SettingWindow
+from sheetStyle.darkMode import darkMode
+import darkdetect
 
 
 class PasswordManager(QWidget):
@@ -15,6 +17,7 @@ class PasswordManager(QWidget):
         super().__init__(parent)
         self.dataFilePath = ".\\Data\\"
         self.dataFileName = ".\\data.json"
+        self.settingFileName = ".\\setting.json"
         self.screenWidth = 1920
         self.screenHeight = 1080
         self.windowWidth = 1000
@@ -25,6 +28,7 @@ class PasswordManager(QWidget):
         self.seconds = 0
         self.minutes = 0
         self.hours = 0
+        self.loadSetting()
         self.setupUi()
         self.loadData()
         self.clock = QTimer(self)
@@ -33,6 +37,8 @@ class PasswordManager(QWidget):
         self.show()
 
     def setupUi(self) -> None:
+        if self.darkModeEnable:
+            self.setStyleSheet(darkMode)
         self.setWindowTitle("Password Manager")
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
         self.setGeometry((self.screenWidth - self.windowWidth) // 2, (self.screenHeight - self.windowHeight) // 2, self.windowWidth, self.windowHeight)
@@ -145,11 +151,13 @@ class PasswordManager(QWidget):
 
     def settingWindow(self) -> None:
         self.settingWindowUi = SettingWindow()
-        self.settingWindowUi.submitClicked.connect(self.onAddNewItemWindowConfirm)
+        self.settingWindowUi.submitClicked.connect(self.settingWindowConfirm)
 
     def settingWindowConfirm(self, isOkPressed):
         if isOkPressed:
-            pass
+            print("ok")
+        else:
+            print("cancel")
 
     def closeWindow(self) -> None:
         self.saveData()
@@ -196,3 +204,20 @@ class PasswordManager(QWidget):
         else:
             makedirs(Path(self.dataFilePath))
             self.loadData()
+
+    def loadSetting(self) -> None:
+        file = open(Path(self.dataFilePath, self.settingFileName), 'r', encoding = "utf-8")
+        data = json.load(file)
+        for row in data:
+            if row == "theme":
+                if data[row] == "Auto":
+                    if darkdetect.isDark():
+                        self.darkModeEnable = "Dark"
+                    else:
+                        self.darkModeEnable = "Light"
+                elif data[row] == "Light":
+                    self.darkModeEnable = "Light"
+                elif data[row] == "Dark":
+                    self.darkModeEnable = "Dark"
+                else:
+                    pass

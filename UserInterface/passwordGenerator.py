@@ -1,8 +1,12 @@
+import json
+from pathlib import Path
 from random import randint
 from pyperclip import copy
 from PyQt6.QtCore import Qt, QTimer, QSize, pyqtSignal, QPointF
 from PyQt6.QtGui import QIcon, QMouseEvent
 from PyQt6.QtWidgets import QHBoxLayout, QWidget, QPushButton, QVBoxLayout, QLabel, QCheckBox, QSlider
+from sheetStyle.darkMode import darkMode
+import darkdetect
 
 
 class PasswordGenerator(QWidget):
@@ -10,8 +14,8 @@ class PasswordGenerator(QWidget):
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
-        super().__init__(parent)
-        self.sub_window = None
+        self.dataFilePath = ".\\Data\\"
+        self.settingFileName = ".\\setting.json"
         self.screenWidth = 1920
         self.screenHeight = 1080
         self.windowWidth = 600
@@ -26,6 +30,7 @@ class PasswordGenerator(QWidget):
         self.includeUppercaseCharacters = True
         self.includeLowercaseCharacters = True
         self.includeSymbols = True
+        self.loadSetting()
         self.setupUi()
         self.clock = QTimer(self)
         self.clock.timeout.connect(self.clockCount)
@@ -33,6 +38,8 @@ class PasswordGenerator(QWidget):
         self.show()
 
     def setupUi(self) -> None:
+        if self.darkModeEnable:
+            self.setStyleSheet(darkMode)
         self.setWindowTitle("Password Generator")
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
         self.setGeometry((self.screenWidth - self.windowWidth) // 2, (self.screenHeight - self.windowHeight) // 2, self.windowWidth, self.windowHeight)
@@ -215,3 +222,20 @@ class PasswordGenerator(QWidget):
             password += charset[index]
         self.output.setText(password)
         copy(password)
+
+    def loadSetting(self) -> None:
+        file = open(Path(self.dataFilePath, self.settingFileName), 'r', encoding = "utf-8")
+        data = json.load(file)
+        for row in data:
+            if row == "theme":
+                if data[row] == "Auto":
+                    if darkdetect.isDark():
+                        self.darkModeEnable = "Dark"
+                    else:
+                        self.darkModeEnable = "Light"
+                elif data[row] == "Light":
+                    self.darkModeEnable = "Light"
+                elif data[row] == "Dark":
+                    self.darkModeEnable = "Dark"
+                else:
+                    pass
