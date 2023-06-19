@@ -32,7 +32,7 @@ class EditItemWindow(QWidget):
         self.show()
 
     def setupUi(self) -> None:
-        if self.darkModeEnable:
+        if self.darkModeEnable == "Dark":
             self.setStyleSheet(darkMode)
         self.setWindowTitle("Edit item")
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint)

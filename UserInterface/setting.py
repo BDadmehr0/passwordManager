@@ -34,7 +34,7 @@ class SettingWindow(QWidget):
         self.show()
 
     def setupUi(self) -> None:
-        if self.darkModeEnable:
+        if self.darkModeEnable == "Dark":
             self.setStyleSheet(darkMode)
         self.setWindowTitle("Setting")
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
@@ -84,9 +84,6 @@ class SettingWindow(QWidget):
         self.cancelButton = QPushButton("Cancel")
         self.cancelButton.clicked.connect(self.cancel)
         self.submitButtonsFrame.addWidget(self.cancelButton)
-        self.ApplyButton = QPushButton("Apply")
-        self.ApplyButton.clicked.connect(self.apply)
-        self.submitButtonsFrame.addWidget(self.ApplyButton)
         self.mainSettingWindowLayout.addLayout(self.submitButtonsFrame)
         self.settingWindowLayout.addLayout(self.mainSettingWindowLayout)
         self.footer = QHBoxLayout()
@@ -151,10 +148,6 @@ class SettingWindow(QWidget):
         self.saveData()
         self.submitClicked.emit(True)
         self.closeWindow()
-
-    def apply(self) -> None:
-        self.saveData()
-        self.submitClicked.emit(True)
 
     def saveData(self) -> None:
         if exists(Path(self.dataFilePath)):

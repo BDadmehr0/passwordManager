@@ -32,7 +32,7 @@ class AddNewItem(QWidget):
         self.show()
 
     def setupUi(self) -> None:
-        if self.darkModeEnable:
+        if self.darkModeEnable == "Dark":
             self.setStyleSheet(darkMode)
         self.setWindowTitle("Add new item")
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint)

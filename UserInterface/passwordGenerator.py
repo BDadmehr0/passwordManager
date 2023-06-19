@@ -38,7 +38,7 @@ class PasswordGenerator(QWidget):
         self.show()
 
     def setupUi(self) -> None:
-        if self.darkModeEnable:
+        if self.darkModeEnable == "Dark":
             self.setStyleSheet(darkMode)
         self.setWindowTitle("Password Generator")
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint)

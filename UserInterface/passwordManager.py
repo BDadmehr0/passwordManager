@@ -37,7 +37,7 @@ class PasswordManager(QWidget):
         self.show()
 
     def setupUi(self) -> None:
-        if self.darkModeEnable:
+        if self.darkModeEnable == "Dark":
             self.setStyleSheet(darkMode)
         self.setWindowTitle("Password Manager")
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
@@ -155,9 +155,9 @@ class PasswordManager(QWidget):
 
     def settingWindowConfirm(self, isOkPressed):
         if isOkPressed:
-            print("ok")
-        else:
-            print("cancel")
+            self.loadSetting()
+            self.close()
+            self.__init__()
 
     def closeWindow(self) -> None:
         self.saveData()
