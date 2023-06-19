@@ -15,17 +15,18 @@ from sheetStyle.darkMode import darkMode
 import darkdetect
 
 
-class AddNewItem(QWidget):
-    submitClicked = pyqtSignal(str, str, str)
+class Login(QWidget):
+    submitClicked = pyqtSignal(bool)
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.dataFilePath = ".\\Data\\"
         self.settingFileName = ".\\setting.json"
+        self.mainPasswordFileName = ".\\mainPassword.json"
         self.screenWidth = 1920
         self.screenHeight = 1080
-        self.windowWidth = 600
-        self.windowHeight = 250
+        self.windowWidth = 400
+        self.windowHeight = 200
         self.clockCounterVariable = 0
         self.milliseconds = 0
         self.seconds = 0
@@ -50,7 +51,7 @@ class AddNewItem(QWidget):
             self.windowHeight,
         )
         self.setWindowIcon(QIcon("Assets\\password.png"))
-        self.passwordManagerLayout = QVBoxLayout()
+        self.loginWindowLayout = QVBoxLayout()
         self.header = QHBoxLayout()
         self.appNameAndIconLayout = QHBoxLayout()
         self.appIconLabel = QLabel("")
@@ -77,27 +78,26 @@ class AddNewItem(QWidget):
         self.maximizeOrRestoreDownPushButton.clicked.connect(self.maximizeOrRestore)
         self.appButtonsLayout.addWidget(self.maximizeOrRestoreDownPushButton)
         self.closePushButton = QPushButton(QIcon("Assets\\close.png"), "")
-        self.closePushButton.clicked.connect(self.close)
+        self.closePushButton.clicked.connect(self.closeWindow)
         self.appButtonsLayout.addWidget(self.closePushButton)
         self.appButtonsLayout.setAlignment(
             Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight
         )
         self.header.addLayout(self.appButtonsLayout)
-        self.passwordManagerLayout.addLayout(self.header)
-        self.mainAppLayout = QVBoxLayout()
-        self.nameTextEdit = QLineEdit(placeholderText="name")
-        self.mainAppLayout.addWidget(self.nameTextEdit)
-        self.usernameTextEdit = QLineEdit(placeholderText="username")
-        self.mainAppLayout.addWidget(self.usernameTextEdit)
-        self.passwordTextEdit = QLineEdit(placeholderText="password")
-        self.mainAppLayout.addWidget(self.passwordTextEdit)
-        self.addPushButton = QPushButton("Add", self)
-        self.addPushButton.clicked.connect(self.addNewItem)
-        self.mainAppLayout.addWidget(self.addPushButton)
-        self.generateNewPasswordPushButton = QPushButton("generate password", self)
-        self.generateNewPasswordPushButton.clicked.connect(self.generatePassword)
-        self.mainAppLayout.addWidget(self.generateNewPasswordPushButton)
-        self.passwordManagerLayout.addLayout(self.mainAppLayout)
+        self.loginWindowLayout.addLayout(self.header)
+        self.mainLoginWindowLayout = QVBoxLayout()
+        self.passwordLayout = QHBoxLayout()
+        self.passwordLabel = QLabel("Password:")
+        self.passwordLayout.addWidget(self.passwordLabel)
+        self.passwordLineEdit = QLineEdit()
+        self.passwordLayout.addWidget(self.passwordLineEdit)
+        self.mainLoginWindowLayout.addLayout(self.passwordLayout)
+        self.loginButtonLayout = QHBoxLayout()
+        self.loginButton = QPushButton("Login")
+        self.loginButton.clicked.connect(self.login)
+        self.loginButtonLayout.addWidget(self.loginButton)
+        self.mainLoginWindowLayout.addLayout(self.loginButtonLayout)
+        self.loginWindowLayout.addLayout(self.mainLoginWindowLayout)
         self.footer = QHBoxLayout()
         self.statusLayout = QHBoxLayout()
         self.timeLabel = QLabel("00:00:00:00")
@@ -127,8 +127,11 @@ class AddNewItem(QWidget):
             Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignRight
         )
         self.footer.addLayout(self.auteurLayout)
-        self.passwordManagerLayout.addLayout(self.footer)
-        self.setLayout(self.passwordManagerLayout)
+        self.loginWindowLayout.addLayout(self.footer)
+        self.setLayout(self.loginWindowLayout)
+
+    def closeWindow(self) -> None:
+        self.close()
 
     def mousePressEvent(self, a0: QMouseEvent) -> None:
         self.oldPosition = a0.globalPosition()
@@ -158,21 +161,21 @@ class AddNewItem(QWidget):
         else:
             self.showMaximized()
             self.maximizeOrRestoreDownPushButton.setIcon(QIcon("Assets\\collapse.png"))
-
-    def addNewItem(self) -> None:
-        self.submitClicked.emit(
-            self.nameTextEdit.text(),
-            self.usernameTextEdit.text(),
-            self.passwordTextEdit.text(),
+    
+    def login(self) -> None:
+        file = open(
+            Path(self.dataFilePath, self.mainPasswordFileName), "r", encoding="utf-8"
         )
-        self.close()
-
-    def generatePassword(self) -> None:
-        self.sub_window = PasswordGenerator()
-        self.sub_window.submitClicked.connect(self.on_sub_window_confirm)
-
-    def on_sub_window_confirm(self, password):
-        self.passwordTextEdit.setText(f"{password}")
+        data = json.load(file)
+        file.close()
+        for row in data:
+            if row == "mainPassword":
+                if self.passwordLineEdit.text() == data[row]:
+                    self.submitClicked.emit(True)
+                    self.closeWindow()
+                else:
+                    self.submitClicked.emit(False)
+                    self.closeWindow()
 
     def loadSetting(self) -> None:
         file = open(

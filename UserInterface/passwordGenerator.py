@@ -4,7 +4,15 @@ from random import randint
 from pyperclip import copy
 from PyQt6.QtCore import Qt, QTimer, QSize, pyqtSignal, QPointF
 from PyQt6.QtGui import QIcon, QMouseEvent
-from PyQt6.QtWidgets import QHBoxLayout, QWidget, QPushButton, QVBoxLayout, QLabel, QCheckBox, QSlider
+from PyQt6.QtWidgets import (
+    QHBoxLayout,
+    QWidget,
+    QPushButton,
+    QVBoxLayout,
+    QLabel,
+    QCheckBox,
+    QSlider,
+)
 from sheetStyle.darkMode import darkMode
 import darkdetect
 
@@ -42,7 +50,12 @@ class PasswordGenerator(QWidget):
             self.setStyleSheet(darkMode)
         self.setWindowTitle("Password Generator")
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
-        self.setGeometry((self.screenWidth - self.windowWidth) // 2, (self.screenHeight - self.windowHeight) // 2, self.windowWidth, self.windowHeight)
+        self.setGeometry(
+            (self.screenWidth - self.windowWidth) // 2,
+            (self.screenHeight - self.windowHeight) // 2,
+            self.windowWidth,
+            self.windowHeight,
+        )
         self.setWindowIcon(QIcon("Assets\\password.png"))
         self.passwordManagerLayout = QVBoxLayout()
         self.header = QHBoxLayout()
@@ -52,22 +65,30 @@ class PasswordGenerator(QWidget):
         self.appNameAndIconLayout.addWidget(self.appIconLabel)
         self.appNamaLabel = QLabel("Password Manager")
         self.appNameAndIconLayout.addWidget(self.appNamaLabel)
-        self.appNameAndIconLayout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+        self.appNameAndIconLayout.setAlignment(
+            Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
+        )
         self.header.addLayout(self.appNameAndIconLayout)
         self.dragAndDropAreaLayout = QHBoxLayout()
-        self.dragAndDropAreaLayout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
+        self.dragAndDropAreaLayout.setAlignment(
+            Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter
+        )
         self.header.addLayout(self.dragAndDropAreaLayout)
         self.appButtonsLayout = QHBoxLayout()
         self.minimizePushButton = QPushButton(QIcon("Assets\\minimize.png"), "")
         self.minimizePushButton.clicked.connect(self.showMinimized)
         self.appButtonsLayout.addWidget(self.minimizePushButton)
-        self.maximizeOrRestoreDownPushButton = QPushButton(QIcon("Assets\\expand.png"), "")
+        self.maximizeOrRestoreDownPushButton = QPushButton(
+            QIcon("Assets\\expand.png"), ""
+        )
         self.maximizeOrRestoreDownPushButton.clicked.connect(self.maximizeOrRestore)
         self.appButtonsLayout.addWidget(self.maximizeOrRestoreDownPushButton)
         self.closePushButton = QPushButton(QIcon("Assets\\close.png"), "")
         self.closePushButton.clicked.connect(self.close)
         self.appButtonsLayout.addWidget(self.closePushButton)
-        self.appButtonsLayout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight)
+        self.appButtonsLayout.setAlignment(
+            Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight
+        )
         self.header.addLayout(self.appButtonsLayout)
         self.passwordManagerLayout.addLayout(self.header)
         self.mainAppLayout = QVBoxLayout()
@@ -116,7 +137,9 @@ class PasswordGenerator(QWidget):
         self.mainAppLayout.addLayout(buttonLayout)
         outputLayout = QVBoxLayout()
         self.output = QLabel("click on generate to generate your password", self)
-        self.output.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+        self.output.setAlignment(
+            Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter
+        )
         outputLayout.addWidget(self.output)
         button = QPushButton("Done", self)
         button.clicked.connect(self.submit)
@@ -130,20 +153,28 @@ class PasswordGenerator(QWidget):
         self.statusLayout.addWidget(self.timeLabel)
         self.appStatusLabel = QLabel("Ready.")
         self.statusLayout.addWidget(self.appStatusLabel)
-        self.statusLayout.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignLeft)
+        self.statusLayout.setAlignment(
+            Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignLeft
+        )
         self.footer.addLayout(self.statusLayout)
         self.versionLayout = QHBoxLayout()
         self.versionLabel = QLabel("V00.01.19")
         self.versionLayout.addWidget(self.versionLabel)
-        self.versionLayout.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
+        self.versionLayout.setAlignment(
+            Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter
+        )
         self.footer.addLayout(self.versionLayout)
         self.auteurLayout = QHBoxLayout()
         self.auteurIconLabel = QLabel("")
-        self.auteurIconLabel.setPixmap(QIcon("Assets\\AriAas.png").pixmap(QSize(16, 16)))
+        self.auteurIconLabel.setPixmap(
+            QIcon("Assets\\AriAas.png").pixmap(QSize(16, 16))
+        )
         self.auteurLayout.addWidget(self.auteurIconLabel)
         self.auteurNameLabel = QLabel("AriAas")
         self.auteurLayout.addWidget(self.auteurNameLabel)
-        self.auteurLayout.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignRight)
+        self.auteurLayout.setAlignment(
+            Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignRight
+        )
         self.footer.addLayout(self.auteurLayout)
         self.passwordManagerLayout.addLayout(self.footer)
         self.setLayout(self.passwordManagerLayout)
@@ -151,7 +182,7 @@ class PasswordGenerator(QWidget):
     def mousePressEvent(self, a0: QMouseEvent) -> None:
         self.oldPosition = a0.globalPosition()
         return super().mousePressEvent(a0)
-    
+
     def mouseMoveEvent(self, a0: QMouseEvent) -> None:
         if self.oldPosition.y() - self.y() < 30:
             delta = QPointF(a0.globalPosition() - self.oldPosition)
@@ -165,7 +196,9 @@ class PasswordGenerator(QWidget):
         seconds, milliseconds = divmod(milliseconds, 100)
         minutes, seconds = divmod(seconds, 60)
         hours, minutes = divmod(minutes, 60)
-        self.timeLabel.setText("{:02d}:{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds, milliseconds))
+        self.timeLabel.setText(
+            "{:02d}:{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds, milliseconds)
+        )
 
     def maximizeOrRestore(self) -> None:
         if self.isMaximized():
@@ -202,15 +235,102 @@ class PasswordGenerator(QWidget):
             for i in data:
                 charset.append(i)
         if self.includeUppercaseCharacters:
-            data = ["A", "B", "C", "D", "E", "F", "G", "H" ,"I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+            data = [
+                "A",
+                "B",
+                "C",
+                "D",
+                "E",
+                "F",
+                "G",
+                "H",
+                "I",
+                "J",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "V",
+                "W",
+                "X",
+                "Y",
+                "Z",
+            ]
             for i in data:
                 charset.append(i)
         if self.includeLowercaseCharacters:
-            data = ["a", "b", "c", "d", "e", "f", "g", "h" ,"i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+            data = [
+                "a",
+                "b",
+                "c",
+                "d",
+                "e",
+                "f",
+                "g",
+                "h",
+                "i",
+                "j",
+                "k",
+                "l",
+                "m",
+                "n",
+                "o",
+                "p",
+                "q",
+                "r",
+                "s",
+                "t",
+                "u",
+                "v",
+                "w",
+                "x",
+                "y",
+                "z",
+            ]
             for i in data:
                 charset.append(i)
         if self.includeSymbols:
-            data = ["~", "`", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "-", "+", "=", "{", "[", "]", "}", ":", ";", "'", '"', "\\", "|", "<", ">", ",", ".", "/", "?"]
+            data = [
+                "~",
+                "`",
+                "!",
+                "@",
+                "#",
+                "$",
+                "%",
+                "^",
+                "&",
+                "*",
+                "(",
+                ")",
+                "_",
+                "-",
+                "+",
+                "=",
+                "{",
+                "[",
+                "]",
+                "}",
+                ":",
+                ";",
+                "'",
+                '"',
+                "\\",
+                "|",
+                "<",
+                ">",
+                ",",
+                ".",
+                "/",
+                "?",
+            ]
             for i in data:
                 charset.append(i)
         if len(charset) == 0:
@@ -224,8 +344,11 @@ class PasswordGenerator(QWidget):
         copy(password)
 
     def loadSetting(self) -> None:
-        file = open(Path(self.dataFilePath, self.settingFileName), 'r', encoding = "utf-8")
+        file = open(
+            Path(self.dataFilePath, self.settingFileName), "r", encoding="utf-8"
+        )
         data = json.load(file)
+        file.close()
         for row in data:
             if row == "theme":
                 if data[row] == "Auto":
