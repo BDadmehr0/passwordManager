@@ -75,9 +75,12 @@ class AppRow(QHBoxLayout):
     def editItemWindow(self) -> None:
         self.editItemWindowUi = EditItemWindow(self.appVersion)
         self.editItemWindowUi.nameTextEdit.setText(self.nameLineEdit.text())
-        self.editItemWindowUi.usernameTextEdit.setText(self.usernameLineEdit.text())
-        self.editItemWindowUi.passwordTextEdit.setText(self.passwordLineEdit.text())
-        self.editItemWindowUi.submitClicked.connect(self.onEditItemWindowConfirm)
+        self.editItemWindowUi.usernameTextEdit.setText(
+            self.usernameLineEdit.text())
+        self.editItemWindowUi.passwordTextEdit.setText(
+            self.passwordLineEdit.text())
+        self.editItemWindowUi.submitClicked.connect(
+            self.onEditItemWindowConfirm)
 
     def onEditItemWindowConfirm(self, name, username, password):
         self.nameLineEdit.setText(name)

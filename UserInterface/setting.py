@@ -14,6 +14,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QIcon, QMouseEvent
 from PyQt6.QtCore import QSize, QTimer, Qt, QPointF, pyqtSignal
 from sheetStyle.darkMode import darkMode
+from UserInterface.passwordCheck import PasswordCheck
 import darkdetect
 
 
@@ -24,11 +25,13 @@ class SettingWindow(QWidget):
         super().__init__(parent)
         self.appVersion = appVersion
         self.dataFilePath = ".\\Data\\"
+        self.dataFileName = ".\\data.json"
         self.settingFileName = ".\\setting.json"
         self.screenWidth = 1920
         self.screenHeight = 1080
         self.windowWidth = 1000
         self.windowHeight = 800
+        self.passwordCheckAttempts = 0
         self.clockCounterVariable = 0
         self.milliseconds = 0
         self.seconds = 0
@@ -58,7 +61,8 @@ class SettingWindow(QWidget):
         self.header = QHBoxLayout()
         self.appNameAndIconLayout = QHBoxLayout()
         self.appIconLabel = QLabel("")
-        self.appIconLabel.setPixmap(QIcon("Assets\\password.png").pixmap(QSize(16, 16)))
+        self.appIconLabel.setPixmap(
+            QIcon("Assets\\password.png").pixmap(QSize(16, 16)))
         self.appNameAndIconLayout.addWidget(self.appIconLabel)
         self.appNamaLabel = QLabel("Password Manager")
         self.appNameAndIconLayout.addWidget(self.appNamaLabel)
@@ -72,13 +76,15 @@ class SettingWindow(QWidget):
         )
         self.header.addLayout(self.dragAndDropAreaLayout)
         self.appButtonsLayout = QHBoxLayout()
-        self.minimizePushButton = QPushButton(QIcon("Assets\\minimize.png"), "")
+        self.minimizePushButton = QPushButton(
+            QIcon("Assets\\minimize.png"), "")
         self.minimizePushButton.clicked.connect(self.showMinimized)
         self.appButtonsLayout.addWidget(self.minimizePushButton)
         self.maximizeOrRestoreDownPushButton = QPushButton(
             QIcon("Assets\\expand.png"), ""
         )
-        self.maximizeOrRestoreDownPushButton.clicked.connect(self.maximizeOrRestore)
+        self.maximizeOrRestoreDownPushButton.clicked.connect(
+            self.maximizeOrRestore)
         self.appButtonsLayout.addWidget(self.maximizeOrRestoreDownPushButton)
         self.closePushButton = QPushButton(QIcon("Assets\\close.png"), "")
         self.closePushButton.clicked.connect(self.closeWindow)
@@ -98,15 +104,25 @@ class SettingWindow(QWidget):
         self.themeComboBox.addItem("Dark")
         self.themeLayout.addWidget(self.themeComboBox)
         self.mainSettingWindowLayout.addLayout(self.themeLayout)
-        self.submitButtonsFrame = QHBoxLayout()
-        self.submitButtonsFrame.setAlignment(Qt.AlignmentFlag.AlignBottom)
+        self.changePasswordLayout = QHBoxLayout()
+        self.changePasswordButton = QPushButton("Change main password")
+        self.changePasswordButton.clicked.connect(self.changePassword)
+        self.changePasswordLayout.addWidget(self.changePasswordButton)
+        self.mainSettingWindowLayout.addLayout(self.changePasswordLayout)
+        self.resetFactoryLayout = QHBoxLayout()
+        self.resetFactoryButton = QPushButton("Reset factory")
+        self.resetFactoryButton.clicked.connect(self.resetFactory)
+        self.resetFactoryLayout.addWidget(self.resetFactoryButton)
+        self.mainSettingWindowLayout.addLayout(self.resetFactoryLayout)
+        self.submitButtonsLayout = QHBoxLayout()
+        self.submitButtonsLayout.setAlignment(Qt.AlignmentFlag.AlignBottom)
         self.okButton = QPushButton("Ok")
         self.okButton.clicked.connect(self.ok)
-        self.submitButtonsFrame.addWidget(self.okButton)
+        self.submitButtonsLayout.addWidget(self.okButton)
         self.cancelButton = QPushButton("Cancel")
         self.cancelButton.clicked.connect(self.cancel)
-        self.submitButtonsFrame.addWidget(self.cancelButton)
-        self.mainSettingWindowLayout.addLayout(self.submitButtonsFrame)
+        self.submitButtonsLayout.addWidget(self.cancelButton)
+        self.mainSettingWindowLayout.addLayout(self.submitButtonsLayout)
         self.settingWindowLayout.addLayout(self.mainSettingWindowLayout)
         self.footer = QHBoxLayout()
         self.statusLayout = QHBoxLayout()
@@ -158,16 +174,19 @@ class SettingWindow(QWidget):
         minutes, seconds = divmod(seconds, 60)
         hours, minutes = divmod(minutes, 60)
         self.timeLabel.setText(
-            "{:02d}:{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds, milliseconds)
+            "{:02d}:{:02d}:{:02d}:{:02d}".format(
+                hours, minutes, seconds, milliseconds)
         )
 
     def maximizeOrRestore(self) -> None:
         if self.isMaximized():
             self.showNormal()
-            self.maximizeOrRestoreDownPushButton.setIcon(QIcon("Assets\\expand.png"))
+            self.maximizeOrRestoreDownPushButton.setIcon(
+                QIcon("Assets\\expand.png"))
         else:
             self.showMaximized()
-            self.maximizeOrRestoreDownPushButton.setIcon(QIcon("Assets\\collapse.png"))
+            self.maximizeOrRestoreDownPushButton.setIcon(
+                QIcon("Assets\\collapse.png"))
 
     def closeWindow(self) -> None:
         self.close()
@@ -181,6 +200,40 @@ class SettingWindow(QWidget):
         self.submitClicked.emit(True)
         self.closeWindow()
 
+    def changePassword(self) -> None:
+        pass
+
+    def resetFactory(self) -> None:
+        self.passwordCheckWindow()
+
+    def passwordCheckWindow(self) -> None:
+        self.settingWindowUi = PasswordCheck(self.appVersion)
+        self.settingWindowUi.submitClicked.connect(self.PasswordCheckWindowConfirm)
+
+    def PasswordCheckWindowConfirm(self, isPasswordCorrect) -> None:
+        if isPasswordCorrect:
+            self.clearData()
+        else:
+            self.passwordCheckAttempts += 1
+            if self.passwordCheckAttempts == 3:
+                self.closeWindow()
+            else:
+                self.passwordCheckWindow()
+
+    def clearData(self) -> None:
+        if exists(Path(self.dataFilePath)):
+            if Path.is_file(Path(self.dataFilePath, self.dataFileName)):
+                file = open(Path(self.dataFilePath, self.dataFileName), "w")
+                data = {}
+                json.dump(data, file)
+            else:
+                file = open(Path(self.dataFilePath, self.dataFileName), "x")
+                file.close()
+                self.saveData()
+        else:
+            makedirs(Path(self.dataFilePath))
+            self.saveData()
+
     def saveData(self) -> None:
         if exists(Path(self.dataFilePath)):
             if Path.is_file(Path(self.dataFilePath, self.settingFileName)):
@@ -191,7 +244,8 @@ class SettingWindow(QWidget):
                         if type(row.itemAt(index).widget()) == type(QLabel()):
                             if row.itemAt(index).widget().text() == "Theme:":
                                 data["theme"] = (
-                                    row.itemAt(index + 1).widget().currentText()
+                                    row.itemAt(
+                                        index + 1).widget().currentText()
                                 )
                 json.dump(data, file)
             else:

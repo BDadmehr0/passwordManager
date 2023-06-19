@@ -56,7 +56,8 @@ class Login(QWidget):
         self.header = QHBoxLayout()
         self.appNameAndIconLayout = QHBoxLayout()
         self.appIconLabel = QLabel("")
-        self.appIconLabel.setPixmap(QIcon("Assets\\password.png").pixmap(QSize(16, 16)))
+        self.appIconLabel.setPixmap(
+            QIcon("Assets\\password.png").pixmap(QSize(16, 16)))
         self.appNameAndIconLayout.addWidget(self.appIconLabel)
         self.appNamaLabel = QLabel("Password Manager")
         self.appNameAndIconLayout.addWidget(self.appNamaLabel)
@@ -70,13 +71,15 @@ class Login(QWidget):
         )
         self.header.addLayout(self.dragAndDropAreaLayout)
         self.appButtonsLayout = QHBoxLayout()
-        self.minimizePushButton = QPushButton(QIcon("Assets\\minimize.png"), "")
+        self.minimizePushButton = QPushButton(
+            QIcon("Assets\\minimize.png"), "")
         self.minimizePushButton.clicked.connect(self.showMinimized)
         self.appButtonsLayout.addWidget(self.minimizePushButton)
         self.maximizeOrRestoreDownPushButton = QPushButton(
             QIcon("Assets\\expand.png"), ""
         )
-        self.maximizeOrRestoreDownPushButton.clicked.connect(self.maximizeOrRestore)
+        self.maximizeOrRestoreDownPushButton.clicked.connect(
+            self.maximizeOrRestore)
         self.appButtonsLayout.addWidget(self.maximizeOrRestoreDownPushButton)
         self.closePushButton = QPushButton(QIcon("Assets\\close.png"), "")
         self.closePushButton.clicked.connect(self.closeWindow)
@@ -152,16 +155,19 @@ class Login(QWidget):
         minutes, seconds = divmod(seconds, 60)
         hours, minutes = divmod(minutes, 60)
         self.timeLabel.setText(
-            "{:02d}:{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds, milliseconds)
+            "{:02d}:{:02d}:{:02d}:{:02d}".format(
+                hours, minutes, seconds, milliseconds)
         )
 
     def maximizeOrRestore(self) -> None:
         if self.isMaximized():
             self.showNormal()
-            self.maximizeOrRestoreDownPushButton.setIcon(QIcon("Assets\\expand.png"))
+            self.maximizeOrRestoreDownPushButton.setIcon(
+                QIcon("Assets\\expand.png"))
         else:
             self.showMaximized()
-            self.maximizeOrRestoreDownPushButton.setIcon(QIcon("Assets\\collapse.png"))
+            self.maximizeOrRestoreDownPushButton.setIcon(
+                QIcon("Assets\\collapse.png"))
 
     def login(self) -> None:
         file = open(
