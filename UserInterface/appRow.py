@@ -5,8 +5,16 @@ from UserInterface.editItem import EditItemWindow
 
 
 class AppRow(QHBoxLayout):
-    def __init__(self, name:str, username:str, password:str, rowNumber:int = 0):
+    def __init__(
+        self,
+        name: str,
+        username: str,
+        password: str,
+        rowNumber: int = 0,
+        appVersion: str = "V00.00.00",
+    ):
         super().__init__()
+        self.appVersion = appVersion
         self.setSpacing(5)
         self.rowNumber = rowNumber
         self.nameLineEdit = QLineEdit(f"{name}")
@@ -65,7 +73,7 @@ class AppRow(QHBoxLayout):
         self.deleteLater()
 
     def editItemWindow(self) -> None:
-        self.editItemWindowUi = EditItemWindow()
+        self.editItemWindowUi = EditItemWindow(self.appVersion)
         self.editItemWindowUi.nameTextEdit.setText(self.nameLineEdit.text())
         self.editItemWindowUi.usernameTextEdit.setText(self.usernameLineEdit.text())
         self.editItemWindowUi.passwordTextEdit.setText(self.passwordLineEdit.text())

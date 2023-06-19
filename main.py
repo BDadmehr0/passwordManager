@@ -4,8 +4,8 @@ from UserInterface.passwordManager import PasswordManager
 
 
 if __name__ == "__main__":
-    # TODO: make login window
+    appVersion = "V00.1E.C4"
     app = QApplication(argv)
     app.setStyle("Fusion")
-    window = PasswordManager()
+    window = PasswordManager(appVersion)
     exit(app.exec())

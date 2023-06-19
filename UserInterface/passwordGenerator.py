@@ -20,8 +20,9 @@ import darkdetect
 class PasswordGenerator(QWidget):
     submitClicked = pyqtSignal(str)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, appVersion: str = "V00.00.00", parent=None) -> None:
         super().__init__(parent)
+        self.appVersion = appVersion
         self.dataFilePath = ".\\Data\\"
         self.settingFileName = ".\\setting.json"
         self.screenWidth = 1920
@@ -158,7 +159,7 @@ class PasswordGenerator(QWidget):
         )
         self.footer.addLayout(self.statusLayout)
         self.versionLayout = QHBoxLayout()
-        self.versionLabel = QLabel("V00.01.19")
+        self.versionLabel = QLabel(self.appVersion)
         self.versionLayout.addWidget(self.versionLabel)
         self.versionLayout.setAlignment(
             Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter

@@ -18,8 +18,9 @@ import darkdetect
 class Login(QWidget):
     submitClicked = pyqtSignal(bool)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, appVersion: str = "V00.00.00", parent=None) -> None:
         super().__init__(parent)
+        self.appVersion = appVersion
         self.dataFilePath = ".\\Data\\"
         self.settingFileName = ".\\setting.json"
         self.mainPasswordFileName = ".\\mainPassword.json"
@@ -109,7 +110,7 @@ class Login(QWidget):
         )
         self.footer.addLayout(self.statusLayout)
         self.versionLayout = QHBoxLayout()
-        self.versionLabel = QLabel("V00.01.19")
+        self.versionLabel = QLabel(self.appVersion)
         self.versionLayout.addWidget(self.versionLabel)
         self.versionLayout.setAlignment(
             Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter
@@ -161,7 +162,7 @@ class Login(QWidget):
         else:
             self.showMaximized()
             self.maximizeOrRestoreDownPushButton.setIcon(QIcon("Assets\\collapse.png"))
-    
+
     def login(self) -> None:
         file = open(
             Path(self.dataFilePath, self.mainPasswordFileName), "r", encoding="utf-8"

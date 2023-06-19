@@ -22,8 +22,9 @@ import darkdetect
 
 
 class PasswordManager(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, appVersion: str = "V00.00.00", parent=None) -> None:
         super().__init__(parent)
+        self.appVersion = appVersion
         self.dataFilePath = ".\\Data\\"
         self.dataFileName = ".\\data.json"
         self.settingFileName = ".\\setting.json"
@@ -128,7 +129,7 @@ class PasswordManager(QWidget):
         )
         self.footer.addLayout(self.statusLayout)
         self.versionLayout = QHBoxLayout()
-        self.versionLabel = QLabel("V00.01.19")
+        self.versionLabel = QLabel(self.appVersion)
         self.versionLayout.addWidget(self.versionLabel)
         self.versionLayout.setAlignment(
             Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter
@@ -179,14 +180,16 @@ class PasswordManager(QWidget):
             self.maximizeOrRestoreDownPushButton.setIcon(QIcon("Assets\\collapse.png"))
 
     def addNewItemWindow(self) -> None:
-        self.addNewItemWindowUi = AddNewItem()
+        self.addNewItemWindowUi = AddNewItem(self.appVersion)
         self.addNewItemWindowUi.submitClicked.connect(self.onAddNewItemWindowConfirm)
 
     def onAddNewItemWindowConfirm(self, name, username, password):
-        self.scrollAreaLayoutContents.addLayout(AppRow(name, username, password))
+        self.scrollAreaLayoutContents.addLayout(
+            AppRow(name, username, password, 0, self.appVersion)
+        )
 
     def settingWindow(self) -> None:
-        self.settingWindowUi = SettingWindow()
+        self.settingWindowUi = SettingWindow(self.appVersion)
         self.settingWindowUi.submitClicked.connect(self.settingWindowConfirm)
 
     def settingWindowConfirm(self, isOkPressed):
@@ -196,7 +199,7 @@ class PasswordManager(QWidget):
             self.__init__()
 
     def loginWindow(self) -> None:
-        self.settingWindowUi = Login()
+        self.settingWindowUi = Login(self.appVersion)
         self.settingWindowUi.submitClicked.connect(self.loginWindowConfirm)
 
     def loginWindowConfirm(self, isLoginOk):
@@ -209,7 +212,7 @@ class PasswordManager(QWidget):
                 self.close()
             else:
                 self.loginWindow()
-    
+
     def closeWindow(self) -> None:
         if self.isLoginOk:
             self.saveData()
@@ -260,6 +263,7 @@ class PasswordManager(QWidget):
                             data[row]["username"],
                             data[row]["password"],
                             data[row]["rowNumber"],
+                            self.appVersion,
                         )
                     )
             else:
