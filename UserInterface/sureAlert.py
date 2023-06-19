@@ -7,26 +7,25 @@ from PyQt6.QtWidgets import (
     QWidget,
     QPushButton,
     QVBoxLayout,
-    QLabel,
-    QLineEdit,
+    QLabel
 )
-from UserInterface.passwordGenerator import PasswordGenerator
 from sheetStyle.darkMode import darkMode
 import darkdetect
 
 
-class AddNewItem(QWidget):
-    submitClicked = pyqtSignal(str, str, str)
+class SureAlert(QWidget):
+    submitClicked = pyqtSignal(bool)
 
     def __init__(self, appVersion: str, parent=None) -> None:
         super().__init__(parent)
         self.appVersion = appVersion
         self.dataFilePath = ".\\Data\\"
         self.settingFileName = ".\\setting.json"
+        self.mainPasswordFileName = ".\\mainPassword.json"
         self.screenWidth = 1920
         self.screenHeight = 1080
-        self.windowWidth = 600
-        self.windowHeight = 250
+        self.windowWidth = 300
+        self.windowHeight = 100
         self.clockCounterVariable = 0
         self.milliseconds = 0
         self.seconds = 0
@@ -52,7 +51,7 @@ class AddNewItem(QWidget):
             self.windowHeight,
         )
         self.setWindowIcon(QIcon("Assets\\password.png"))
-        self.passwordManagerLayout = QVBoxLayout()
+        self.alertWindowLayout = QVBoxLayout()
         self.header = QHBoxLayout()
         self.appNameAndIconLayout = QHBoxLayout()
         self.appIconLabel = QLabel("")
@@ -82,29 +81,27 @@ class AddNewItem(QWidget):
             self.maximizeOrRestore)
         self.appButtonsLayout.addWidget(self.maximizeOrRestoreDownPushButton)
         self.closePushButton = QPushButton(QIcon("Assets\\close.png"), "")
-        self.closePushButton.clicked.connect(self.close)
+        self.closePushButton.clicked.connect(self.closeWindow)
         self.appButtonsLayout.addWidget(self.closePushButton)
         self.appButtonsLayout.setAlignment(
             Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight
         )
         self.header.addLayout(self.appButtonsLayout)
-        self.passwordManagerLayout.addLayout(self.header)
-        self.mainAppLayout = QVBoxLayout()
-        self.nameTextEdit = QLineEdit(placeholderText="name")
-        self.mainAppLayout.addWidget(self.nameTextEdit)
-        self.usernameTextEdit = QLineEdit(placeholderText="username")
-        self.mainAppLayout.addWidget(self.usernameTextEdit)
-        self.passwordTextEdit = QLineEdit(placeholderText="password")
-        self.mainAppLayout.addWidget(self.passwordTextEdit)
-        self.addPushButton = QPushButton("Add", self)
-        self.addPushButton.clicked.connect(self.addNewItem)
-        self.mainAppLayout.addWidget(self.addPushButton)
-        self.generateNewPasswordPushButton = QPushButton(
-            "generate password", self)
-        self.generateNewPasswordPushButton.clicked.connect(
-            self.generatePassword)
-        self.mainAppLayout.addWidget(self.generateNewPasswordPushButton)
-        self.passwordManagerLayout.addLayout(self.mainAppLayout)
+        self.alertWindowLayout.addLayout(self.header)
+        self.mainAlertWindowLayout = QVBoxLayout()
+        self.messageLayout = QHBoxLayout()
+        self.messageLabel = QLabel("Are you sure?")
+        self.messageLayout.addWidget(self.messageLabel)
+        self.mainAlertWindowLayout.addLayout(self.messageLayout)
+        self.ButtonsLayout = QHBoxLayout()
+        self.yesButton = QPushButton("Yes")
+        self.yesButton.clicked.connect(self.yes)
+        self.ButtonsLayout.addWidget(self.yesButton)
+        self.noButton = QPushButton("No")
+        self.noButton.clicked.connect(self.no)
+        self.ButtonsLayout.addWidget(self.noButton)
+        self.mainAlertWindowLayout.addLayout(self.ButtonsLayout)
+        self.alertWindowLayout.addLayout(self.mainAlertWindowLayout)
         self.footer = QHBoxLayout()
         self.statusLayout = QHBoxLayout()
         self.timeLabel = QLabel("00:00:00:00")
@@ -134,8 +131,19 @@ class AddNewItem(QWidget):
             Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignRight
         )
         self.footer.addLayout(self.auteurLayout)
-        self.passwordManagerLayout.addLayout(self.footer)
-        self.setLayout(self.passwordManagerLayout)
+        self.alertWindowLayout.addLayout(self.footer)
+        self.setLayout(self.alertWindowLayout)
+
+    def closeWindow(self) -> None:
+        self.close()
+
+    def yes(self) -> None:
+        self.submitClicked.emit(True)
+        self.closeWindow()
+
+    def no(self) -> None:
+        self.submitClicked.emit(False)
+        self.closeWindow()
 
     def mousePressEvent(self, a0: QMouseEvent) -> None:
         self.oldPosition = a0.globalPosition()
@@ -168,21 +176,6 @@ class AddNewItem(QWidget):
             self.showMaximized()
             self.maximizeOrRestoreDownPushButton.setIcon(
                 QIcon("Assets\\collapse.png"))
-
-    def addNewItem(self) -> None:
-        self.submitClicked.emit(
-            self.nameTextEdit.text(),
-            self.usernameTextEdit.text(),
-            self.passwordTextEdit.text(),
-        )
-        self.close()
-
-    def generatePassword(self) -> None:
-        self.sub_window = PasswordGenerator(self.appVersion)
-        self.sub_window.submitClicked.connect(self.on_sub_window_confirm)
-
-    def on_sub_window_confirm(self, password):
-        self.passwordTextEdit.setText(f"{password}")
 
     def loadSetting(self) -> None:
         file = open(

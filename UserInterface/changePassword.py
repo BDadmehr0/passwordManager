@@ -11,13 +11,14 @@ from PyQt6.QtWidgets import (
     QLineEdit,
 )
 from sheetStyle.darkMode import darkMode
+from UserInterface.okAlert import OKAlert
 import darkdetect
 
 
 class ChangePassword(QWidget):
     submitClicked = pyqtSignal(bool, str)
 
-    def __init__(self, appVersion: str = "V00.00.00", parent=None) -> None:
+    def __init__(self, appVersion: str, parent=None) -> None:
         super().__init__(parent)
         self.appVersion = appVersion
         self.dataFilePath = ".\\Data\\"
@@ -44,6 +45,7 @@ class ChangePassword(QWidget):
             self.setStyleSheet(darkMode)
         self.setWindowTitle("Add new item")
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setGeometry(
             (self.screenWidth - self.windowWidth) // 2,
             (self.screenHeight - self.windowHeight) // 2,
@@ -180,6 +182,9 @@ class ChangePassword(QWidget):
             self.maximizeOrRestoreDownPushButton.setIcon(
                 QIcon("Assets\\collapse.png"))
 
+    def alertWindow(self, message) -> None:
+        self.alertWindow = OKAlert(message, self.appVersion)
+
     def changePassword(self) -> None:
         file = open(
             Path(self.dataFilePath, self.mainPasswordFileName), "r", encoding="utf-8"
@@ -194,9 +199,12 @@ class ChangePassword(QWidget):
                             True, self.newPasswordLineEdit.text())
                         self.closeWindow()
                     else:
+                        self.alertWindow(
+                            "new and confirm passwords are not the same!")
                         self.submitClicked.emit(False, "")
                         self.closeWindow()
                 else:
+                    self.alertWindow("old password is not correct!")
                     self.submitClicked.emit(False, "")
                     self.closeWindow()
 

@@ -18,7 +18,7 @@ import darkdetect
 class Login(QWidget):
     submitClicked = pyqtSignal(bool)
 
-    def __init__(self, appVersion: str = "V00.00.00", parent=None) -> None:
+    def __init__(self, appVersion: str, parent=None) -> None:
         super().__init__(parent)
         self.appVersion = appVersion
         self.dataFilePath = ".\\Data\\"
@@ -45,6 +45,7 @@ class Login(QWidget):
             self.setStyleSheet(darkMode)
         self.setWindowTitle("Add new item")
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setGeometry(
             (self.screenWidth - self.windowWidth) // 2,
             (self.screenHeight - self.windowHeight) // 2,

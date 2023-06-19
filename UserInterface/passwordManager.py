@@ -17,12 +17,13 @@ from UserInterface.appRow import AppRow
 from UserInterface.addNewItem import AddNewItem
 from UserInterface.setting import SettingWindow
 from UserInterface.login import Login
+from UserInterface.okAlert import OKAlert
 from sheetStyle.darkMode import darkMode
 import darkdetect
 
 
 class PasswordManager(QWidget):
-    def __init__(self, appVersion: str = "V00.00.00", parent=None) -> None:
+    def __init__(self, appVersion: str, parent=None) -> None:
         super().__init__(parent)
         self.appVersion = appVersion
         self.dataFilePath = ".\\Data\\"
@@ -43,10 +44,10 @@ class PasswordManager(QWidget):
         self.clock = QTimer(self)
         self.clock.timeout.connect(self.clockCount)
         self.clock.start(10)
-        self.show()
         self.isLoginOk = False
         self.loginAttempts = 0
         self.loginWindow()
+        self.show()
 
     def setupUi(self) -> None:
         if self.darkModeEnable == "Dark":
@@ -204,7 +205,10 @@ class PasswordManager(QWidget):
         if isOkPressed:
             self.loadSetting()
             self.close()
-            self.__init__()
+            self.__init__(self.appVersion)
+
+    def alertWindow(self, message) -> None:
+        self.alertWindow = OKAlert(message, self.appVersion)
 
     def loginWindow(self) -> None:
         self.settingWindowUi = Login(self.appVersion)
@@ -217,7 +221,11 @@ class PasswordManager(QWidget):
         else:
             self.loginAttempts += 1
             if self.loginAttempts == 3:
+                self.alertWindow(
+                    "You did enter the wrong password three times!")
                 self.close()
+            elif self.loginAttempts == 2:
+                self.loginWindow()
             else:
                 self.loginWindow()
 
