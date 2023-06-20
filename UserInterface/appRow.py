@@ -5,18 +5,12 @@ from UserInterface.editItem import EditItemWindow
 
 
 class AppRow(QHBoxLayout):
-    def __init__(
-        self,
-        name: str,
-        username: str,
-        password: str,
-        rowNumber: int = 0,
-        appVersion: str = "V00.00.00",
-    ):
+    def __init__(self, name: str, username: str, password: str, screenWidth: int, screenHeight: int, appVersion: str = "V00.00.00"):
         super().__init__()
+        self.screenWidth = screenWidth
+        self.screenHeight = screenHeight
         self.appVersion = appVersion
         self.setSpacing(5)
-        self.rowNumber = rowNumber
         self.nameLineEdit = QLineEdit(f"{name}")
         self.nameLineEdit.setMinimumHeight(24)
         self.nameLineEdit.setDisabled(True)
@@ -73,14 +67,11 @@ class AppRow(QHBoxLayout):
         self.deleteLater()
 
     def editItemWindow(self) -> None:
-        self.editItemWindowUi = EditItemWindow(self.appVersion)
+        self.editItemWindowUi = EditItemWindow(self.appVersion, self.screenWidth, self.screenHeight)
         self.editItemWindowUi.nameTextEdit.setText(self.nameLineEdit.text())
-        self.editItemWindowUi.usernameTextEdit.setText(
-            self.usernameLineEdit.text())
-        self.editItemWindowUi.passwordTextEdit.setText(
-            self.passwordLineEdit.text())
-        self.editItemWindowUi.submitClicked.connect(
-            self.onEditItemWindowConfirm)
+        self.editItemWindowUi.usernameTextEdit.setText(self.usernameLineEdit.text())
+        self.editItemWindowUi.passwordTextEdit.setText(self.passwordLineEdit.text())
+        self.editItemWindowUi.submitClicked.connect(self.onEditItemWindowConfirm)
 
     def onEditItemWindowConfirm(self, name, username, password):
         self.nameLineEdit.setText(name)

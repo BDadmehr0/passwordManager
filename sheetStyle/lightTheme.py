@@ -1,14 +1,14 @@
-darkMode = """
+lightTheme = """
     QWidget {
         background-color: #333333;
-        color: #ffffff;
+        color: #000000;
         border: none;
     }
     QPushButton {
         background-color: #4d4d4d;
         border: 1px solid #4d4d4d;
         border-radius: 4px;
-        color: #ffffff;
+        color: #000000;
         padding: 5px;
     }
     QPushButton:hover {
@@ -16,18 +16,18 @@ darkMode = """
         border: 1px solid #5a5a5a;
     }
     QCheckBox {
-        color: #ffffff;
+        color: #000000;
     }
     QLineEdit {
         background-color: #4d4d4d;
         border: 1px solid #4d4d4d;
-        color: #ffffff;
+        color: #000000;
         padding: 5px;
     }
     QTextEdit {
         background-color: #4d4d4d;
         border: 1px solid #4d4d4d;
-        color: #ffffff;
+        color: #000000;
         padding: 5px;
     }
     QProgressBar {
@@ -36,7 +36,7 @@ darkMode = """
         background-color: #2e2e2e;
         text-align: center;
         font-size: 10pt;
-        color: white;
+        color: black;
     }
     QProgressBar::chunk {
         background-color: #3a3a3a;
@@ -77,6 +77,6 @@ darkMode = """
  
     QTabBar::tab:selected, QTabBar::tab:hover {
         background-color: #3a3a3a;
-        color: white;
+        color: black;
     }
 """
