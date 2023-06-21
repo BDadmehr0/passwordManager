@@ -1,0 +1,10 @@
+{
+    "backgroundColor": "#333333",
+    "foregroundColor": "#ffffff",
+    "backgroundColorForLightElements": "#4d4d4d",
+    "backgroundColorForLightElementsOnHoverMode": "#5a5a5a",
+    "backgroundColorOfTabs": "#2e2e2e",
+    "foregroundColorOfTabs": "#b1b1b1",
+    "backgroundColorOfTabsOnHoverMode": "#3a3a3a",
+    "backgroundColorOfScrollBars": "#444444"
+}

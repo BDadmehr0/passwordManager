@@ -1,0 +1,5 @@
+{
+    "Dark": ".\\darkTheme.json",
+    "Light": ".\\lightTheme.json",
+    "Light Red": "lightRedTheme.json"
+}

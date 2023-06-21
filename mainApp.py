@@ -5,10 +5,9 @@ from pathlib import Path
 from PyQt6.QtWidgets import QApplication
 from UserInterface.passwordManager import PasswordManager
 import darkdetect
-from sheetStyle.darkTheme import darkTheme
-from sheetStyle.lightTheme import lightTheme
 from qt_material import apply_stylesheet
 from screeninfo import get_monitors
+from sheetStyle.theme import Theme
 
 class MainApp():
     def __init__(self, argv) -> None:
@@ -30,64 +29,78 @@ class MainApp():
         return (screenWidth, screenHeight)
 
     def setAppStyleAndTheme(self) -> None:
-        self.app.setStyle(self.appStyle)
-        if self.theme == "Dark":
-            self.app.setStyleSheet(darkTheme)
-        elif self.theme == "Light":
-            self.app.setStyleSheet(lightTheme)
+        self.themes = self.loadThemes()
+        if self.theme in self.themes.keys():
+            self.app.setStyle(self.appStyle)
+            theme = Theme(self.data["themesFilesPath"], self.themes[self.theme])
+            self.app.setStyleSheet(theme.theme())
         elif self.theme == "System":
-            pass
+            self.app.setStyle(self.appStyle)
         else:
-            theme = self.selectTheme(self.theme)
+            theme = self.loadThemes()
             apply_stylesheet(self.app, theme, self.appStyle)
 
-    def selectTheme(self, theme) -> str:
-        if theme == "Dark amber":
+    def loadThemes(self) -> str:
+        if self.theme == "Dark amber":
             theme = "dark_amber.xml"
-        elif theme == "Dark blue":
+        elif self.theme == "Dark blue":
             theme = "dark_blue.xml"
-        elif theme == "Dark cyan":
+        elif self.theme == "Dark cyan":
             theme = "dark_cyan.xml"
-        elif theme == "Dark lightgreen":
+        elif self.theme == "Dark lightgreen":
             theme = "dark_lightgreen.xml"
-        elif theme == "Dark pink":
+        elif self.theme == "Dark pink":
             theme = "dark_pink.xml"
-        elif theme == "Dark purple":
+        elif self.theme == "Dark purple":
             theme = "dark_purple.xml"
-        elif theme == "Dark red":
+        elif self.theme == "Dark red":
             theme = "dark_red.xml"
-        elif theme == "Dark teal":
+        elif self.theme == "Dark teal":
             theme = "dark_teal.xml"
-        elif theme == "Dark yellow":
+        elif self.theme == "Dark yellow":
             theme = "dark_yellow.xml"
-        elif theme == "Light amber":
+        elif self.theme == "Light amber":
             theme = "light_amber.xml"
-        elif theme == "Light blue":
+        elif self.theme == "Light blue":
             theme = "light_blue.xml"
-        elif theme == "Light cyan":
+        elif self.theme == "Light cyan":
             theme = "light_cyan.xml"
-        elif theme == "Light cyan 500":
+        elif self.theme == "Light cyan 500":
             theme = "light_cyan_500.xml"
-        elif theme == "Light lightgreen":
+        elif self.theme == "Light lightgreen":
             theme = "light_lightgreen.xml"
-        elif theme == "Light pink":
+        elif self.theme == "Light pink":
             theme = "light_pink.xml"
-        elif theme == "Light purple":
+        elif self.theme == "Light purple":
             theme = "light_purple.xml"
-        elif theme == "Light red":
+        elif self.theme == "Light red":
             theme = "light_red.xml"
-        elif theme == "Light teal":
+        elif self.theme == "Light teal":
             theme = "light_teal.xml"
-        elif theme == "Light yellow":
+        elif self.theme == "Light yellow":
             theme = "light_yellow.xml"
+        else:
+            if exists(Path(self.data["themesFilesPath"])):
+                if Path.is_file(Path(self.data["themesFilesPath"], self.data["themesAddressFileName"])):
+                    file = open(Path(self.data["themesFilesPath"], self.data["themesAddressFileName"]), "r", encoding="utf-8")
+                    data = json.load(file)
+                    file.close()
+                    return data
+                else:
+                    file = open(Path(self.data["themesFilesPath"], self.data["themesAddressFileName"]), "x")
+                    data = {}
+                    json.dump(data, file)
+                    file.close()
+                    self.loadThemes()
+            else:
+                makedirs(Path(self.data["themesFilesPath"]))
+                self.loadThemes()
         return theme
 
     def loadData(self) -> dict:
         if exists(Path(self.dataFilesPath)):
             if Path.is_file(Path(self.dataFilesPath, self.dataFileName)):
-                file = open(
-                    Path(self.dataFilesPath, self.dataFileName), "r", encoding="utf-8"
-                )
+                file = open(Path(self.dataFilesPath, self.dataFileName), "r", encoding="utf-8")
                 data = json.load(file)
                 file.close()
                 return data
@@ -102,9 +115,7 @@ class MainApp():
             self.loadData()
 
     def loadSettings(self) -> None:
-        file = open(
-            Path(self.dataFilesPath, self.settingsFileName), "r", encoding="utf-8"
-        )
+        file = open(Path(self.dataFilesPath, self.settingsFileName), "r", encoding="utf-8")
         data = json.load(file)
         file.close()
         for row in data:
