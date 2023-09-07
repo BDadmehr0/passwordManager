@@ -1,0 +1,3 @@
+PyQt6
+screeninfo
+qt_material
